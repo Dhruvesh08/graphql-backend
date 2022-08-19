@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 
 const Employee = require("./models/employee");
 
+
 const app = express();
 app.use(bodyParser.json());
 
@@ -66,10 +67,14 @@ app.use(
 
         type RootQuery {
             employees:[Employee!]!
+            singleEmployee(id:ID!):Employee!
+            filterByName(name:String!):[Employee!]!
         }
 
         type RootMutation{
             createEmployee(employeeInput:EmployeeInput): Employee
+            updateEmployee(id:ID!,employeeInput:EmployeeInput):Employee
+            deleteEmployee(id:ID!):Employee
         }
         schema {
             query:RootQuery
@@ -85,6 +90,15 @@ app.use(
             })
           )
           .catch((error) => console.log(error));
+      },
+      singleEmployee: (args) => {
+        return Employee.findById(args.id);
+      },
+      deleteEmployee: (args) => {
+        return Employee.deleteOne({ _id: args.id });
+      },
+      filterByName: (args) => {
+        return Employee.find({ firstName: args.name }).exec();
       },
       createEmployee: (args) => {
         const employee = new Employee({
